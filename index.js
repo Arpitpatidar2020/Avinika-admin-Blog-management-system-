@@ -15,6 +15,7 @@ app.use(cors({
     origin: [
         'https://admin-frontent.netlify.app', 
         'https://avininika-main.netlify.app',
+        'https://avinika-main.netlify.app',
         'http://localhost:5173',
         'http://localhost:3000'
     ],
