@@ -78,7 +78,15 @@ const uploadProfileImage = async (req, res) => {
         if (!req.file) {
             return res.status(400).json({ message: 'Please upload an image' });
         }
-        res.json({ url: req.file.path });
+
+        const admin = await Admin.findById(req.admin._id);
+        if (admin) {
+            admin.profileImage = req.file.path;
+            await admin.save();
+            res.json({ url: req.file.path });
+        } else {
+            res.status(404).json({ message: 'Admin not found' });
+        }
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

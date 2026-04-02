@@ -13,7 +13,7 @@ const app = express();
 // Middleware
 app.use(cors({
     origin: [
-        'https://admin-frontent.netlify.app', 
+        'https://adminavinika-frontend.netlify.app', 
         'https://avininika-main.netlify.app',
         'https://avinika-main.netlify.app',
         'http://localhost:5173',
