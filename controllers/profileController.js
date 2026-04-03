@@ -1,5 +1,5 @@
 const Admin = require('../models/Admin');
-const { cloudinary } = require('../config/cloudinary');
+const { cloudinary, deleteFromCloudinary } = require('../config/cloudinary');
 
 // @desc    Get admin profile
 // @route   GET /api/profile
@@ -45,7 +45,8 @@ const updateProfile = async (req, res) => {
             admin.name = req.body.name || admin.name;
             admin.email = req.body.email || admin.email;
             
-            if (req.body.profileImage !== undefined) {
+            if (req.body.profileImage !== undefined && req.body.profileImage !== admin.profileImage) {
+                await deleteFromCloudinary(admin.profileImage);
                 admin.profileImage = req.body.profileImage;
             }
 
@@ -81,6 +82,10 @@ const uploadProfileImage = async (req, res) => {
 
         const admin = await Admin.findById(req.admin._id);
         if (admin) {
+            // Delete old image if it exists to avoid orphans
+            if (admin.profileImage) {
+                await deleteFromCloudinary(admin.profileImage);
+            }
             admin.profileImage = req.file.path;
             await admin.save();
             res.json({ url: req.file.path });
@@ -102,14 +107,7 @@ const deleteProfileImage = async (req, res) => {
     }
 
     try {
-        // Extract public_id from URL
-        // Example URL: https://res.cloudinary.com/demo/image/upload/v12345/folder/image_name.jpg
-        const parts = imageUrl.split('/');
-        const fileName = parts[parts.length - 1].split('.')[0];
-        const folder = parts[parts.length - 2];
-        const publicId = `${folder}/${fileName}`;
-
-        await cloudinary.uploader.destroy(publicId);
+        await deleteFromCloudinary(imageUrl);
         res.json({ message: 'Image deleted from cloud' });
     } catch (error) {
         res.status(500).json({ message: error.message });

@@ -1,5 +1,5 @@
 const Blog = require('../models/Blog');
-const { cloudinary } = require('../config/cloudinary');
+const { cloudinary, deleteFromCloudinary } = require('../config/cloudinary');
 
 // @desc    Create a new blog
 // @route   POST /api/blogs
@@ -91,11 +91,13 @@ const updateBlog = async (req, res) => {
             blog.category = req.body.category || blog.category;
             blog.status = req.body.status || blog.status;
             
-            if (req.body.featuredImage !== undefined) {
+            if (req.body.featuredImage !== undefined && req.body.featuredImage !== blog.featuredImage) {
+                await deleteFromCloudinary(blog.featuredImage);
                 blog.featuredImage = req.body.featuredImage;
             }
 
-            if (req.body.detailImage !== undefined) {
+            if (req.body.detailImage !== undefined && req.body.detailImage !== blog.detailImage) {
+                await deleteFromCloudinary(blog.detailImage);
                 blog.detailImage = req.body.detailImage;
             }
             
@@ -136,27 +138,12 @@ const deleteBlog = async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);
         if (blog) {
-            // Delete image from Cloudinary if exists
-            // Helper to delete image from Cloudinary
-            const deleteCloudinaryImage = async (url) => {
-                if (url && url.includes('cloudinary.com')) {
-                    try {
-                        const parts = url.split('/');
-                        const fileName = parts[parts.length - 1].split('.')[0];
-                        const folder = parts[parts.length - 2];
-                        const publicId = `${folder}/${fileName}`;
-                        await cloudinary.uploader.destroy(publicId);
-                    } catch (cloudinaryError) {
-                        console.error('Cloudinary Removal Error:', cloudinaryError);
-                    }
-                }
-            };
-
-            await deleteCloudinaryImage(blog.featuredImage);
-            await deleteCloudinaryImage(blog.detailImage);
+            // Delete images from Cloudinary if they exist
+            await deleteFromCloudinary(blog.featuredImage);
+            await deleteFromCloudinary(blog.detailImage);
 
             await blog.deleteOne();
-            res.json({ message: 'Blog removed and image cleaned from cloud' });
+            res.json({ message: 'Blog removed and images cleaned from cloud' });
         } else {
             res.status(404).json({ message: 'Blog not found' });
         }

@@ -30,6 +30,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/blogs', require('./routes/blogRoutes'));
 app.use('/api/profile', require('./routes/profileRoutes'));
+app.use('/api/upload', require('./routes/uploadRoutes'));
 
 // Basic Route
 app.get('/', (req, res) => {
