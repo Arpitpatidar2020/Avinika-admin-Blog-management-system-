@@ -102,4 +102,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 -   Website: [avinikasolution.in](https://avinikasolution.in)
 
 ---
-*Developed with ❤️ by Avinika Solution*
+*"Developed & Crafted with ❤️ by Arpit Patidar | Avinika Solution*
